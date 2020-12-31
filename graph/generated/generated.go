@@ -44,35 +44,52 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Link struct {
-		Desc func(childComplexity int) int
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
-		User func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Userid      func(childComplexity int) int
 	}
 
 	Mutation struct {
 		CreateLink func(childComplexity int, input model.NewLink) int
+		CreateUser func(childComplexity int, input model.UserInput) int
+		DeleteLink func(childComplexity int, id string) int
+		UpdateLink func(childComplexity int, id string, input model.UpdateLink) int
+		UpdateUser func(childComplexity int, id string, input model.UserInput) int
 	}
 
 	Query struct {
-		Links func(childComplexity int) int
-		Users func(childComplexity int) int
+		GetuserbyID func(childComplexity int, id string) int
+		Links       func(childComplexity int) int
+		UserLinks   func(childComplexity int) int
+		Users       func(childComplexity int) int
 	}
 
 	User struct {
 		Email    func(childComplexity int) int
 		ID       func(childComplexity int) int
-		Link     func(childComplexity int) int
 		Username func(childComplexity int) int
+	}
+
+	UserLinks struct {
+		ID    func(childComplexity int) int
+		Links func(childComplexity int) int
+		User  func(childComplexity int) int
 	}
 }
 
 type MutationResolver interface {
+	UpdateLink(ctx context.Context, id string, input model.UpdateLink) (*model.Link, error)
+	UpdateUser(ctx context.Context, id string, input model.UserInput) (*model.User, error)
 	CreateLink(ctx context.Context, input model.NewLink) (*model.Link, error)
+	CreateUser(ctx context.Context, input model.UserInput) (*model.User, error)
+	DeleteLink(ctx context.Context, id string) (bool, error)
 }
 type QueryResolver interface {
 	Links(ctx context.Context) ([]*model.Link, error)
 	Users(ctx context.Context) ([]*model.User, error)
+	UserLinks(ctx context.Context) ([]*model.UserLinks, error)
+	GetuserbyID(ctx context.Context, id string) (*model.User, error)
 }
 
 type executableSchema struct {
@@ -90,12 +107,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Link.desc":
-		if e.complexity.Link.Desc == nil {
+	case "Link.description":
+		if e.complexity.Link.Description == nil {
 			break
 		}
 
-		return e.complexity.Link.Desc(childComplexity), true
+		return e.complexity.Link.Description(childComplexity), true
 
 	case "Link.id":
 		if e.complexity.Link.ID == nil {
@@ -111,12 +128,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Link.Name(childComplexity), true
 
-	case "Link.user":
-		if e.complexity.Link.User == nil {
+	case "Link.userid":
+		if e.complexity.Link.Userid == nil {
 			break
 		}
 
-		return e.complexity.Link.User(childComplexity), true
+		return e.complexity.Link.Userid(childComplexity), true
 
 	case "Mutation.createLink":
 		if e.complexity.Mutation.CreateLink == nil {
@@ -130,12 +147,79 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateLink(childComplexity, args["input"].(model.NewLink)), true
 
+	case "Mutation.createUser":
+		if e.complexity.Mutation.CreateUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.UserInput)), true
+
+	case "Mutation.deleteLink":
+		if e.complexity.Mutation.DeleteLink == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteLink_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteLink(childComplexity, args["id"].(string)), true
+
+	case "Mutation.updateLink":
+		if e.complexity.Mutation.UpdateLink == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateLink_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateLink(childComplexity, args["id"].(string), args["input"].(model.UpdateLink)), true
+
+	case "Mutation.updateUser":
+		if e.complexity.Mutation.UpdateUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(string), args["input"].(model.UserInput)), true
+
+	case "Query.getuserbyId":
+		if e.complexity.Query.GetuserbyID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getuserbyId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetuserbyID(childComplexity, args["id"].(string)), true
+
 	case "Query.links":
 		if e.complexity.Query.Links == nil {
 			break
 		}
 
 		return e.complexity.Query.Links(childComplexity), true
+
+	case "Query.userLinks":
+		if e.complexity.Query.UserLinks == nil {
+			break
+		}
+
+		return e.complexity.Query.UserLinks(childComplexity), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -158,19 +242,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.ID(childComplexity), true
 
-	case "User.link":
-		if e.complexity.User.Link == nil {
-			break
-		}
-
-		return e.complexity.User.Link(childComplexity), true
-
 	case "User.username":
 		if e.complexity.User.Username == nil {
 			break
 		}
 
 		return e.complexity.User.Username(childComplexity), true
+
+	case "UserLinks.id":
+		if e.complexity.UserLinks.ID == nil {
+			break
+		}
+
+		return e.complexity.UserLinks.ID(childComplexity), true
+
+	case "UserLinks.links":
+		if e.complexity.UserLinks.Links == nil {
+			break
+		}
+
+		return e.complexity.UserLinks.Links(childComplexity), true
+
+	case "UserLinks.user":
+		if e.complexity.UserLinks.User == nil {
+			break
+		}
+
+		return e.complexity.UserLinks.User(childComplexity), true
 
 	}
 	return 0, false
@@ -244,29 +342,56 @@ type User{
   id: ID!
   username: String!
   email: String!
-  link: [Link!]!
+
 }
 
 type Link{
   id: ID!
   name: String!
-  desc: String!
-  user: User!
-}
-input NewLink {
-  name: String!
-  desc: String!
+  description: String!
+  userid : String!
+
 }
 
+type UserLinks{
+  id: ID!,
+  user: User!
+  links: [Link]
+}
 
 
 type Query {
   links : [Link!]!
   users : [User!]!
+  userLinks: [UserLinks]!
+  getuserbyId(id: ID!): User!
 }
 
+
+input UserInput{
+  username:String!
+  email: String!
+}
+
+input NewLink {
+  name: String!
+  description: String!
+  userid: String!
+}
+
+input UpdateLink{
+  name: String
+  description: String
+}
+
+
+
 type Mutation {
-  createLink(input: NewLink!): Link!
+  updateLink(id: ID!, input: UpdateLink!): Link!
+  updateUser(id: ID! ,input: UserInput!): User!
+  createLink( input: NewLink!): Link!
+  createUser( input: UserInput!): User!
+  deleteLink(id: ID!): Boolean!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -290,6 +415,84 @@ func (ec *executionContext) field_Mutation_createLink_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.UserInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUserInput2graphql_postrgresᚋgraphᚋmodelᚐUserInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteLink_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateLink_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 model.UpdateLink
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNUpdateLink2graphql_postrgresᚋgraphᚋmodelᚐUpdateLink(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 model.UserInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNUserInput2graphql_postrgresᚋgraphᚋmodelᚐUserInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -302,6 +505,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getuserbyId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -413,7 +631,7 @@ func (ec *executionContext) _Link_name(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Link_desc(ctx context.Context, field graphql.CollectedField, obj *model.Link) (ret graphql.Marshaler) {
+func (ec *executionContext) _Link_description(ctx context.Context, field graphql.CollectedField, obj *model.Link) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -431,7 +649,7 @@ func (ec *executionContext) _Link_desc(ctx context.Context, field graphql.Collec
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Desc, nil
+		return obj.Description, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -448,7 +666,7 @@ func (ec *executionContext) _Link_desc(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Link_user(ctx context.Context, field graphql.CollectedField, obj *model.Link) (ret graphql.Marshaler) {
+func (ec *executionContext) _Link_userid(ctx context.Context, field graphql.CollectedField, obj *model.Link) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -466,7 +684,91 @@ func (ec *executionContext) _Link_user(ctx context.Context, field graphql.Collec
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.User, nil
+		return obj.Userid, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updateLink(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updateLink_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateLink(rctx, args["id"].(string), args["input"].(model.UpdateLink))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Link)
+	fc.Result = res
+	return ec.marshalNLink2ᚖgraphql_postrgresᚋgraphᚋmodelᚐLink(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updateUser_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateUser(rctx, args["id"].(string), args["input"].(model.UserInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -523,6 +825,90 @@ func (ec *executionContext) _Mutation_createLink(ctx context.Context, field grap
 	res := resTmp.(*model.Link)
 	fc.Result = res
 	return ec.marshalNLink2ᚖgraphql_postrgresᚋgraphᚋmodelᚐLink(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createUser_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateUser(rctx, args["input"].(model.UserInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgraphql_postrgresᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteLink(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteLink_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteLink(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_links(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -593,6 +979,83 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	res := resTmp.([]*model.User)
 	fc.Result = res
 	return ec.marshalNUser2ᚕᚖgraphql_postrgresᚋgraphᚋmodelᚐUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_userLinks(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().UserLinks(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.UserLinks)
+	fc.Result = res
+	return ec.marshalNUserLinks2ᚕᚖgraphql_postrgresᚋgraphᚋmodelᚐUserLinks(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getuserbyId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_getuserbyId_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetuserbyID(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgraphql_postrgresᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -771,7 +1234,7 @@ func (ec *executionContext) _User_email(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_link(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserLinks_id(ctx context.Context, field graphql.CollectedField, obj *model.UserLinks) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -779,7 +1242,7 @@ func (ec *executionContext) _User_link(ctx context.Context, field graphql.Collec
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:     "User",
+		Object:     "UserLinks",
 		Field:      field,
 		Args:       nil,
 		IsMethod:   false,
@@ -789,7 +1252,7 @@ func (ec *executionContext) _User_link(ctx context.Context, field graphql.Collec
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Link, nil
+		return obj.ID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -801,9 +1264,76 @@ func (ec *executionContext) _User_link(ctx context.Context, field graphql.Collec
 		}
 		return graphql.Null
 	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UserLinks_user(ctx context.Context, field graphql.CollectedField, obj *model.UserLinks) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "UserLinks",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.User, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgraphql_postrgresᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UserLinks_links(ctx context.Context, field graphql.CollectedField, obj *model.UserLinks) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "UserLinks",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Links, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
 	res := resTmp.([]*model.Link)
 	fc.Result = res
-	return ec.marshalNLink2ᚕᚖgraphql_postrgresᚋgraphᚋmodelᚐLinkᚄ(ctx, field.Selections, res)
+	return ec.marshalOLink2ᚕᚖgraphql_postrgresᚋgraphᚋmodelᚐLink(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -1907,11 +2437,75 @@ func (ec *executionContext) unmarshalInputNewLink(ctx context.Context, obj inter
 			if err != nil {
 				return it, err
 			}
-		case "desc":
+		case "description":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("desc"))
-			it.Desc, err = ec.unmarshalNString2string(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			it.Description, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "userid":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userid"))
+			it.Userid, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateLink(ctx context.Context, obj interface{}) (model.UpdateLink, error) {
+	var it model.UpdateLink
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "description":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj interface{}) (model.UserInput, error) {
+	var it model.UserInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "username":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+			it.Username, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			it.Email, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -1950,13 +2544,13 @@ func (ec *executionContext) _Link(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "desc":
-			out.Values[i] = ec._Link_desc(ctx, field, obj)
+		case "description":
+			out.Values[i] = ec._Link_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "user":
-			out.Values[i] = ec._Link_user(ctx, field, obj)
+		case "userid":
+			out.Values[i] = ec._Link_userid(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -1986,8 +2580,28 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "updateLink":
+			out.Values[i] = ec._Mutation_updateLink(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateUser":
+			out.Values[i] = ec._Mutation_updateUser(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createLink":
 			out.Values[i] = ec._Mutation_createLink(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createUser":
+			out.Values[i] = ec._Mutation_createUser(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deleteLink":
+			out.Values[i] = ec._Mutation_deleteLink(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2045,6 +2659,34 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "userLinks":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_userLinks(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "getuserbyId":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getuserbyId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
@@ -2086,11 +2728,40 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "link":
-			out.Values[i] = ec._User_link(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var userLinksImplementors = []string{"UserLinks"}
+
+func (ec *executionContext) _UserLinks(ctx context.Context, sel ast.SelectionSet, obj *model.UserLinks) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userLinksImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserLinks")
+		case "id":
+			out.Values[i] = ec._UserLinks_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "user":
+			out.Values[i] = ec._UserLinks_user(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "links":
+			out.Values[i] = ec._UserLinks_links(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2448,6 +3119,15 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) unmarshalNUpdateLink2graphql_postrgresᚋgraphᚋmodelᚐUpdateLink(ctx context.Context, v interface{}) (model.UpdateLink, error) {
+	res, err := ec.unmarshalInputUpdateLink(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUser2graphql_postrgresᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
+	return ec._User(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNUser2ᚕᚖgraphql_postrgresᚋgraphᚋmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -2493,6 +3173,48 @@ func (ec *executionContext) marshalNUser2ᚖgraphql_postrgresᚋgraphᚋmodelᚐ
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUserInput2graphql_postrgresᚋgraphᚋmodelᚐUserInput(ctx context.Context, v interface{}) (model.UserInput, error) {
+	res, err := ec.unmarshalInputUserInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUserLinks2ᚕᚖgraphql_postrgresᚋgraphᚋmodelᚐUserLinks(ctx context.Context, sel ast.SelectionSet, v []*model.UserLinks) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOUserLinks2ᚖgraphql_postrgresᚋgraphᚋmodelᚐUserLinks(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -2748,6 +3470,53 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
+func (ec *executionContext) marshalOLink2ᚕᚖgraphql_postrgresᚋgraphᚋmodelᚐLink(ctx context.Context, sel ast.SelectionSet, v []*model.Link) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOLink2ᚖgraphql_postrgresᚋgraphᚋmodelᚐLink(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalOLink2ᚖgraphql_postrgresᚋgraphᚋmodelᚐLink(ctx context.Context, sel ast.SelectionSet, v *model.Link) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Link(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2770,6 +3539,13 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return graphql.MarshalString(*v)
+}
+
+func (ec *executionContext) marshalOUserLinks2ᚖgraphql_postrgresᚋgraphᚋmodelᚐUserLinks(ctx context.Context, sel ast.SelectionSet, v *model.UserLinks) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UserLinks(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

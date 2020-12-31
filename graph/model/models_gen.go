@@ -3,20 +3,36 @@
 package model
 
 type Link struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Desc string `json:"desc"`
-	User *User  `json:"user"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Userid      string `json:"userid"`
 }
 
 type NewLink struct {
-	Name string `json:"name"`
-	Desc string `json:"desc"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Userid      string `json:"userid"`
+}
+
+type UpdateLink struct {
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
 }
 
 type User struct {
-	ID       string  `json:"id"`
-	Username string  `json:"username"`
-	Email    string  `json:"email"`
-	Link     []*Link `json:"link"`
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
+type UserInput struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
+type UserLinks struct {
+	ID    string  `json:"id"`
+	User  *User   `json:"user"`
+	Links []*Link `json:"links"`
 }

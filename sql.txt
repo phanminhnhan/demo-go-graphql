@@ -1,0 +1,45 @@
+CREATE TABLE users
+(
+    id         BIGSERIAL PRIMARY KEY,
+    username   VARCHAR(55) UNIQUE                     ,
+    email      VARCHAR(255) UNIQUE                    ,
+    first_name VARCHAR(255)                           ,
+    last_name  VARCHAR(255)                           ,
+    password   TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+    deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL
+);
+
+CREATE TABLE demo(
+	name varchar(255),
+	age int
+);
+insert into demo values('nhan2', 12)
+
+
+CREATE TABLE links
+(
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT,
+
+    user_id BIGSERIAL,
+     CONSTRAINT fk_users
+          FOREIGN KEY(user_id)
+    	  REFERENCES users(id)
+);
+
+select * from users;
+select * from links;
+
+insert into links(name, description, user_id) values('name1', 'desc1', 1);
+insert into links(name, description, user_id) values('name2', 'desc2', 2);
+insert into links(name, description, user_id) values('name3', 'desc3', 3);
+insert into links(name, description, user_id) values('name4', 'desc4', 1);
+
+
+insert into users(username,email,first_name, last_name,password ) values('nhan phan', 'nhan@gmail',
+																		 'phan', 'minh', 'pw1')
+insert into users(username,email,first_name, last_name,password ) values('nhan pha2', 'nhan2@gmail',
+																		 'phan2', 'minh2', 'pw2')

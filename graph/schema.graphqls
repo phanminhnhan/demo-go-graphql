@@ -6,27 +6,54 @@ type User{
   id: ID!
   username: String!
   email: String!
-  link: [Link!]!
+
 }
 
 type Link{
   id: ID!
   name: String!
-  desc: String!
-  user: User!
-}
-input NewLink {
-  name: String!
-  desc: String!
+  description: String!
+  userid : String!
+
 }
 
+type UserLinks{
+  id: ID!,
+  user: User!
+  links: [Link]
+}
 
 
 type Query {
   links : [Link!]!
   users : [User!]!
+  userLinks: [UserLinks]!
+  getuserbyId(id: ID!): User!
 }
 
+
+input UserInput{
+  username:String!
+  email: String!
+}
+
+input NewLink {
+  name: String!
+  description: String!
+  userid: String!
+}
+
+input UpdateLink{
+  name: String
+  description: String
+}
+
+
+
 type Mutation {
-  createLink(input: NewLink!): Link!
+  updateLink(id: ID!, input: UpdateLink!): Link!
+  updateUser(id: ID! ,input: UserInput!): User!
+  createLink( input: NewLink!): Link!
+  createUser( input: UserInput!): User!
+  deleteLink(id: ID!): Boolean!
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/go-pg/pg/v9"
 	"graphql_postrgres/database"
 	"graphql_postrgres/graph"
 	"graphql_postrgres/graph/generated"
@@ -15,23 +16,26 @@ import (
 const defaultPort = "8080"
 
 func main() {
-	//database
-	sql := &database.Sql{
-		Host:     "localhost",
-		Port:      5432,
-		Username: "postgres",
+
+
+	DB := database.New(&pg.Options{
+		User: "postgres",
 		Password: "postgres",
-		DbName:   "graphql",
-	}
-	sql.ConnectDB()
-	defer sql.Close()
+		Database: "graphql",
+	})
+	defer DB.Close()
+
+	DB.AddQueryHook(database.DBLogger{})
 
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
-	c := generated.Config{Resolvers: &graph.Resolver{}}
+	c := generated.Config{Resolvers: &graph.Resolver{
+		LinkRepo: database.LinkRepo{Db: DB},
+		UserRepo: database.UserRepo{Db: DB},
+	}}
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(c))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))

@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7ede1b1b-a110-45d8-82fd-65ccb97a46cb" name="Default Changelist" comment="" />
+    <list default="true" id="7ede1b1b-a110-45d8-82fd-65ccb97a46cb" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/sql.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/db.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/db.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/links.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/links.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/database/users.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/graph/generated/generated.go" beforeDir="false" afterPath="$PROJECT_DIR$/graph/generated/generated.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/graph/model/models_gen.go" beforeDir="false" afterPath="$PROJECT_DIR$/graph/model/models_gen.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/graph/resolver.go" beforeDir="false" afterPath="$PROJECT_DIR$/graph/resolver.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/graph/schema.graphqls" beforeDir="false" afterPath="$PROJECT_DIR$/graph/schema.graphqls" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/graph/schema.resolvers.go" beforeDir="false" afterPath="$PROJECT_DIR$/graph/schema.resolvers.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/server.go" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,6 +31,9 @@
     </option>
   </component>
   <component name="GOROOT" url="file://$PROJECT_DIR$/../../../../../Go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="GoLibraries">
     <option name="indexEntireGoPath" value="false" />
   </component>
@@ -23,6 +41,7 @@
     <option name="selectedIndex" value="1" />
   </component>
   <component name="ProjectId" id="1mGav0kYJJV0PylZBNFTaKmKHpb" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -41,11 +60,44 @@
       <recent name="C:\Users\nhan.phan\go\src\graphql_postrgres\graph" />
     </key>
   </component>
+  <component name="RunManager">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="graphql_postrgres" />
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i" />
+      <kind value="PACKAGE" />
+      <filePath value="$PROJECT_DIR$" />
+      <package value="graphql_postrgres" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build graphql_postrgres" type="GoApplicationRunConfiguration" factoryName="Go Application" nameIsGenerated="true">
+      <module name="graphql_postrgres" />
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i" />
+      <kind value="PACKAGE" />
+      <filePath value="$PROJECT_DIR$" />
+      <package value="graphql_postrgres" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/database/users.go</url>
+          <line>32</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

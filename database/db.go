@@ -1,34 +1,24 @@
 package database
 
-
 import (
+	"context"
+	"github.com/go-pg/pg/v9"
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"github.com/labstack/gommon/log"
-	_"github.com/lib/pq"
 )
 
-type Sql struct {
-	Db *sqlx.DB
-	Host string
-	Port int
-	Username string
-	Password string
-	DbName string
+
+
+type DBLogger struct{}
+
+func (d DBLogger) BeforeQuery(ctx context.Context, q *pg.QueryEvent) (context.Context, error) {
+	return ctx, nil
 }
 
-
-func (s *Sql) ConnectDB(){
-	dataSource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		s.Host, s.Port, s.Username, s.Password, s.DbName)
-	s.Db = sqlx.MustConnect("postgres", dataSource)
-	if err := s.Db.Ping(); err != nil {
-		log.Error(err.Error())
-		return
-	}
-	fmt.Println("Connect database ok")
+func (d DBLogger) AfterQuery(ctx context.Context, q *pg.QueryEvent) error {
+	fmt.Println(q.FormattedQuery())
+	return nil
 }
 
-func (s *Sql) Close(){
-	s.Db.Close()
+func New(opts *pg.Options) *pg.DB {
+	return pg.Connect(opts)
 }

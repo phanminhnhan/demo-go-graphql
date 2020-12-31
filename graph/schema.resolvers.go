@@ -5,20 +5,102 @@ package graph
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"graphql_postrgres/graph/generated"
 	"graphql_postrgres/graph/model"
 )
 
+func (r *mutationResolver) UpdateLink(ctx context.Context, id string, input model.UpdateLink) (*model.Link, error) {
+	link, err := r.LinkRepo.GetbyId(id)
+	if err != nil || link == nil {
+		return nil, errors.New("link is not exist")
+	}
+	updated := false
+	if input.Name != nil {
+		if len(*input.Name) < 3 {
+			return nil, errors.New("name is too short to update")
+		}
+		link.Name = *input.Name
+		updated = true
+	}
+	if input.Description != nil {
+		if len(*input.Description) < 3 {
+			return nil, errors.New("description is too short to update")
+		}
+		link.Description = *input.Description
+		updated = true
+	}
+	if !updated {
+		return nil, errors.New("not updated yet ")
+	}
+	link, err = r.LinkRepo.Updatelink(link)
+	if err != nil {
+		return nil, err
+	}
+	return link, nil
+}
+
+func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input model.UserInput) (*model.User, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 func (r *mutationResolver) CreateLink(ctx context.Context, input model.NewLink) (*model.Link, error) {
-	return nil, nil
+	if len(input.Name) < 5 {
+		return nil, errors.New("name too short")
+	}
+	if len(input.Description) < 5 {
+		return nil, errors.New("description too short too short")
+	}
+
+	newLink := &model.Link{
+		Name:        input.Name,
+		Description: input.Description,
+		Userid:      input.Userid,
+	}
+	return r.LinkRepo.CreateLink(newLink)
+}
+
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserInput) (*model.User, error) {
+	if len(input.Username) < 5 {
+		return nil, errors.New("username too short")
+	}
+	if len(input.Email) < 5 {
+		return nil, errors.New("description too short too short")
+	}
+	newUser := &model.User{
+		Username: input.Username,
+		Email:    input.Email,
+	}
+	return r.UserRepo.CreateUser(newUser)
+}
+
+func (r *mutationResolver) DeleteLink(ctx context.Context, id string) (bool, error) {
+	link, err := r.LinkRepo.GetbyId(id)
+	if err != nil || link == nil {
+		return false, errors.New("link is not exist")
+	}
+	err = r.LinkRepo.DeleteLink(link)
+	if err != nil {
+		return false, errors.New("not deleted yet")
+	}
+	return true, nil
 }
 
 func (r *queryResolver) Links(ctx context.Context) ([]*model.Link, error) {
-	return links, nil
+	return r.LinkRepo.GetAllLinks()
 }
 
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	return users, nil
+	return r.UserRepo.GetAllUsers()
+}
+
+func (r *queryResolver) UserLinks(ctx context.Context) ([]*model.UserLinks, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetuserbyID(ctx context.Context, id string) (*model.User, error) {
+	return r.UserRepo.GetUserById(id)
 }
 
 // Mutation returns generated.MutationResolver implementation.
@@ -29,42 +111,3 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-var users = []*model.User{
-	{ID: "1",
-		Username: "nhan1",
-		Email:    "pw1",
-		Link:     links,
-	},
-	{ID: "2",
-		Username: "nhan2",
-		Email:    "pw2",
-	},
-	{ID: "3",
-		Username: "nhan3",
-		Email:    "pw3",
-	},
-}
-var links = []*model.Link{
-	{
-		ID:   "1",
-		Name: "link1",
-		Desc: "desc1",
-	},
-	{
-		ID:   "2",
-		Name: "link2",
-		Desc: "desc2",
-	},
-	{
-		ID:   "3",
-		Name: "link3",
-		Desc: "desc3",
-	},
-}
